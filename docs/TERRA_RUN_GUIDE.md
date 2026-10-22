@@ -93,6 +93,26 @@ rows with `step = 2/3/4` are the inputs of workflows 1/2/3 above, with the
 same names; for AoU use the defaults written in the description column
 (e.g. `sites_per_chunk = 500`, `n_editing_pcs = 15`, `min_covered_samples = 60`).
 
+## 4b. Run order and settings: fixture -> 100-sample pilot -> full run
+
+| Setting | Fixture (`tests/fixtures/sim_small`) | Pilot (100 AoU samples) | Full AoU run |
+| --- | --- | --- | --- |
+| `docker_image` | ghcr.io `@sha256:` digest | same | same |
+| `sample_list` | fixture `sample_list.txt` | 100 research_ids | full cohort list, or unset = every sample present in all inputs |
+| `sites_per_chunk` | 10 | 5000 (seconds per shard; fewer VMs = less start-up cost) | **500** (default, ~200 shards) |
+| `n_editing_pcs` | 3 | 5 (15 PCs + covariates is too many for 100 samples) | **15** (default) |
+| `min_covered_samples` | 30 | 60 (default) | 60 (default); consider also `min_covered_fraction` (e.g. 0.1) because 60 is only 0.6 % of 10k samples |
+| `cis_window` | 1000000 | 1000000 | 1000000 (same for tensorQTL and caNRD-editQTL) |
+| tensorQTL | nominal (default) | nominal | nominal (GPU g2-standard-16 + L4) |
+| `preemptible_attempts` | 2 | 2 | 2 |
+
+Expected: fixture minutes and cents; pilot well under $1 (the two index tasks
+and input downloads stay full size); full run ~4-6 h wall time if the L4 GPU
+quota allows the 13 tensorQTL jobs in parallel (~8-10 h with 1 GPU), ~150
+vCPU-hours + 4-9 GPU-hours, ~$4-6 preemptible (~$13-19 on demand).
+Check `sample_alignment_report.tsv` after PrepareCohort: the cohort is the
+intersection of all inputs (and the sample list); it must have >= 30 samples.
+
 ## 5. Scale and resources (10k samples, 100k sites, 1M variants)
 
 Measured (not guessed) with `code/analysis/profile_pipeline_resources.sh` on a
