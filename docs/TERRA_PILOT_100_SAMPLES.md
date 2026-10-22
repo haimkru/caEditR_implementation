@@ -90,7 +90,7 @@ Inputs. Leave everything not listed at its default.
 | `plink_pgen` / `plink_pvar` / `plink_psam` | `this.plink_pgen` / `this.plink_pvar` / `this.plink_psam` |
 | `sample_list` | `this.sample_list` |
 | `output_prefix` | `this.output_prefix` |
-| `docker_image` | `"ghcr.io/haimkru/caeditr_implementation@sha256:<digest>"` |
+| `docker_image` | `"ghcr.io/haimkru/caeditr_implementation@sha256:d7758d4b4fbee8f8d18ac8b70ead6e5d772b7c43f7056973d1d9562c9d9496af"` (current image, built from commit 642f665; use the newest digest from the `Docker Image CI` log after any change to `R/`, `scripts/` or `envs/`) |
 | `sites_per_chunk` | `5000` (at 100 samples each shard takes seconds; fewer VMs = less start-up cost) |
 | `n_editing_pcs` | `5` (15 is for the full cohort) |
 | `run_tensorqtl` | `true` |
