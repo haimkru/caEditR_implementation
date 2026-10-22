@@ -5,8 +5,7 @@
 
 Terra (WDL 1.0) pipelines for **cell-type-specific RNA-editing QTLs (edQTLs)**
 in All of Us whole-blood RNA-seq, built on
-[caEditR](https://github.com/haimkru/caEditR) (pinned: 0.99.3, commit
-`812bf93`). Three approaches, as in the caEditR manuscript (Methods 4.6):
+[caEditR](https://github.com/haimkru/caEditR) (version 0.99.3). Three approaches:
 
 1. **Bulk edQTLs** - tensorQTL on the quality-controlled bulk editing ratios
    (standard edQTL pipeline, Li et al. 2022).
@@ -37,13 +36,36 @@ linear-CPM expression BED, GTF, CellTypeDeconvolution
 `proportions_tca_weights.tsv`, PLINK2 genotypes, covariates TSV
 (`sample_id`, genotype PCs, sex, age), optional sample list.
 
-## Scaling
+## Scaling: chunks
 
-Sites are split into genomic chunks (`sites_per_chunk`, default 500) that are
-scattered; every chunk reads only its region of the bgzipped, tabix-indexed
-editing matrices and extracts only its cis variants from the PLINK2 files with
-`plink2`. Memory per shard is independent of the number of sites and variants;
-10k samples x 100k sites x 1M variants = ~200 shards per stage. See
+The work is split into **chunks**, and each chunk runs on its own Terra VM at
+the same time as the others (a WDL scatter).
+
+- **A chunk is a number of editing sites, not base pairs.** The sites are
+  sorted by position, and each chunk is the next `sites_per_chunk` consecutive
+  sites on one chromosome (default 500). Its genomic span is whatever those
+  sites cover: a few Mb to ~15 Mb at AoU density. A chunk never crosses a
+  chromosome and never splits two sites at the same position, so the last
+  chunk of a chromosome is usually smaller.
+- **What a chunk VM reads.** It reads only its sites' rows from the bgzipped,
+  tabix-indexed editing-ratio and coverage matrices. For caNRD-editQTL it also
+  extracts, with `plink2`, only the variants within +/- 1 Mb of those sites
+  (first site - 1 Mb to last site + 1 Mb).
+- **Chunking does not change the results.** Each site is still tested against
+  exactly the variants within +/- 1 Mb of that site (`cis_window`), the same
+  window tensorQTL uses. The one exception: TCA fits its shared noise term
+  within each chunk.
+- **Which stages are chunked.** DeconvolveChunk (caNRD-edit + TCA) and
+  CanrdEditqtlChunk. tensorQTL is not chunked: it runs one job per phenotype
+  set (bulk, or one method x cell type) over the whole genome.
+- **Why it scales.** Memory and time per chunk depend on the chunk size and
+  the number of samples, not on the total number of sites or variants. 10k
+  samples x 100k sites x 1M variants is ~200 chunks per chunked stage, each
+  needing ~4 GB (deconvolution) or ~12 GB (caNRD-editQTL), measured at 10k
+  samples. Fewer, larger chunks mean fewer VM start-ups; smaller chunks mean
+  less memory per VM. The pilot uses 5000 sites per chunk.
+
+Resources, time and cost:
 [docs/TERRA_RUN_GUIDE.md](docs/TERRA_RUN_GUIDE.md#5-scale-and-resources-10k-samples-100k-sites-1m-variants).
 
 ## Repository layout
@@ -58,15 +80,6 @@ tools/        lint and WDL checks (logging fields, Terra workflow-scope file wri
 docs/         Terra run guide, data dictionary
 examples/     Terra data-table template (TSV)
 ```
-
-## Running
-
-- Terra, first real run: [docs/TERRA_PILOT_100_SAMPLES.md](docs/TERRA_PILOT_100_SAMPLES.md) (100 samples, step by step); full reference: [docs/TERRA_RUN_GUIDE.md](docs/TERRA_RUN_GUIDE.md).
-- Locally (miniwdl + Docker, same images): `miniwdl run workflows/<wdl> name=value ...`;
-  the development project drives this with one script per step.
-- CI (`.github/workflows/pipeline-ci.yml`): miniwdl + womtool checks, R lint and
-  tests in the image, end-to-end run on `tests/fixtures/sim_small`
-  (tensorQTL with the CPU image; the 22 GB GPU image does not fit a GitHub runner).
 
 ## Docker image
 
