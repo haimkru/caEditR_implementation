@@ -1,0 +1,6 @@
+ci-runs/
+_LAST
+.Rhistory
+.RData
+*.log
+.DS_Store

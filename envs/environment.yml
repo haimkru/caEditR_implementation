@@ -1,0 +1,43 @@
+# ------------------------------------------------------------------------------
+# envs/environment.yml
+# Description: conda environment of the caEditR_edQTL Docker image
+#              (R analysis, caEditR build toolchain, bgzip/tabix, plink2).
+# Version:     0.1.0
+# Date:        2026-10-22
+# Author:      Haim Krupkin+Claude
+# Pseudo code: micromamba installs these into the image's base environment;
+#              caEditR itself is installed from GitHub by the Dockerfile.
+# Inputs / outputs: none (environment definition)
+# ------------------------------------------------------------------------------
+name: caeditr-edqtl
+channels:
+  - conda-forge
+  - bioconda
+  - nodefaults
+dependencies:
+  # R and the packages the scripts use
+  - r-base=4.5.3
+  - r-data.table
+  - r-optparse=1.8.2
+  - r-jsonlite=2.0.0
+  - r-nnls
+  - r-rcpp
+  - r-tca=1.2.1
+  - r-irlba
+  - r-arrow
+  - r-r.utils
+  - bioconductor-qvalue
+  - r-testthat=3.3.1
+  - r-lintr=3.4.0
+  # caEditR is compiled from source (Rcpp / C++)
+  - compilers
+  - make
+  - git
+  # caEditR's optional moment estimator runs a Python subprocess
+  - python=3.11
+  - numpy
+  - scipy
+  # genomics command-line tools
+  - htslib
+  - plink2
+  - gawk

@@ -1,0 +1,121 @@
+# Static WDL checks + R tests + an end-to-end miniwdl run of the pipeline in
+# Docker on the small simulated fixture (tests/fixtures/sim_small).
+# tensorQTL tasks run with the CPU image envs/tensorqtl_cpu (same tensorQTL
+# 1.0.9 as the Broad GPU image used on Terra, which is ~22 GB and does not fit
+# on a GitHub runner).
+name: Pipeline CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: ["main"]
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  test-pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install miniwdl and womtool
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check "miniwdl==1.15.0"
+          curl --fail --location --retry 3 \
+            https://github.com/broadinstitute/cromwell/releases/download/87/womtool-87.jar \
+            --output "$RUNNER_TEMP/womtool-87.jar"
+          echo "73b63098ac0a87d586b7c5b8729b6e8b440de3df0f5c8b0daafd796dc4ff734c  $RUNNER_TEMP/womtool-87.jar" | sha256sum --check
+
+      - name: Static WDL checks (miniwdl, Cromwell womtool, logging, Terra file scope)
+        run: |
+          set -euo pipefail
+          for wdl in workflows/*.wdl; do
+            miniwdl check "$wdl"
+            java -jar "$RUNNER_TEMP/womtool-87.jar" validate "$wdl"
+          done
+          python3 tools/check_wdl_logging.py workflows
+          python3 tools/check_wdl_file_scope.py workflows
+
+      - name: Build test images
+        run: |
+          set -euo pipefail
+          docker build --file envs/Dockerfile --tag caeditr_edqtl:test .
+          docker build --file envs/tensorqtl_cpu/Dockerfile --tag tensorqtl_cpu:test .
+
+      - name: R lint and unit tests (inside the image)
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD:/workspace" -w /workspace caeditr_edqtl:test Rscript tools/lint_r.R
+          docker run --rm -v "$PWD:/workspace" -w /workspace caeditr_edqtl:test Rscript tests/testthat.R
+
+      - name: Run the end-to-end pipeline on the simulated fixture
+        run: |
+          set -euo pipefail
+          fixture="$PWD/tests/fixtures/sim_small"
+          run_directory="$PWD/ci-runs/pipeline"
+          mkdir -p "$run_directory"
+          miniwdl run workflows/editing_edqtl_pipeline.wdl \
+            editing_ratios="$fixture/editing_ratios.bed.gz" \
+            editing_coverage="$fixture/editing_coverage.bed.gz" \
+            expression="$fixture/expression.cpm.bed.gz" \
+            gtf="$fixture/genes.gtf.gz" \
+            proportions="$fixture/proportions_tca_weights.tsv" \
+            covariates="$fixture/additional_covariates.tsv" \
+            plink_pgen="$fixture/genotypes.pgen" \
+            plink_pvar="$fixture/genotypes.pvar" \
+            plink_psam="$fixture/genotypes.psam" \
+            sample_list="$fixture/sample_list.txt" \
+            output_prefix=ci \
+            sites_per_chunk=10 \
+            min_covered_samples=30 \
+            n_editing_pcs=3 \
+            run_tensorqtl=true \
+            run_tensorqtl_nominal=true \
+            tensorqtl_docker_image=tensorqtl_cpu:test \
+            tensorqtl_num_threads=2 \
+            tensorqtl_memory=4 \
+            tensorqtl_disk_space=20 \
+            docker_image=caeditr_edqtl:test \
+            preemptible_attempts=0 \
+            max_retries=0 \
+            phenotype_memory="4 GB" \
+            canrd_chunk_memory="4 GB" \
+            --dir "$run_directory/." --verbose --no-color
+
+      - name: Check the pipeline outputs
+        run: |
+          set -euo pipefail
+          out="$PWD/ci-runs/pipeline/out"
+          test -s "$out/canrd_editqtl_site_level/ci.canrd_editqtl.site_level.tsv"
+          test -s "$out/edsite_overview/ci.edsite_overview.tsv"
+          test -s "$out/tensorqtl_all_analyses/ci.tensorqtl_cis.all_analyses.tsv.gz"
+          ls "$out/celltype_beds"/*/ci.canrd_edit.*.bed.gz
+          ls "$out/celltype_beds"/*/ci.tca.*.bed.gz
+          cat "$out/edsite_overview/ci.edsite_overview.tsv"
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-ci-logs-${{ github.run_id }}
+          path: |
+            ci-runs/**/*.log
+            ci-runs/**/stderr.txt
+            ci-runs/**/error.json
+          if-no-files-found: warn

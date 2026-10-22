@@ -1,0 +1,17 @@
+version: 1.2
+workflows:
+  - subclass: WDL
+    primaryDescriptorPath: /workflows/editing_edqtl_pipeline.wdl
+    name: editing_edqtl_pipeline
+  - subclass: WDL
+    primaryDescriptorPath: /workflows/prepare_editing_phenotypes.wdl
+    name: prepare_editing_phenotypes
+  - subclass: WDL
+    primaryDescriptorPath: /workflows/tensorqtl_edqtl.wdl
+    name: tensorqtl_edqtl
+  - subclass: WDL
+    primaryDescriptorPath: /workflows/canrd_editqtl.wdl
+    name: canrd_editqtl
+  - subclass: WDL
+    primaryDescriptorPath: /workflows/summarize_edqtl.wdl
+    name: summarize_edqtl

@@ -1,0 +1,59 @@
+# Builds envs/Dockerfile (linux/amd64, as Terra) and pushes it to
+# ghcr.io/<owner>/caeditr_edqtl with a sha-<commit> tag and "latest" on main.
+# Pin Terra runs to the sha tag or the image digest printed in the job log.
+name: Docker Image CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/docker-image.yml"
+      - "envs/**"
+      - "R/**"
+      - "scripts/**"
+
+jobs:
+  build_and_push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v4
+
+      - name: Log in to ghcr.io with docker
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          # image names on ghcr.io must be lower case
+          images: ghcr.io/${{ github.repository_owner }}/caeditr_edqtl
+          tags: |
+            type=sha,prefix=sha-,format=long
+            type=raw,value=latest,enable={{is_default_branch}}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+
+      - name: Build and push docker containers
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./envs/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Print the immutable image reference for Terra
+        run: echo "ghcr.io/${{ github.repository_owner }}/caeditr_edqtl@${{ steps.build.outputs.digest }}"
