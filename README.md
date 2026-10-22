@@ -1,4 +1,4 @@
-# caEditR_edQTL
+# caEditR_implementation
 
 <!-- workflow-badges:start -->
 <!-- workflow-badges:end -->
@@ -52,7 +52,7 @@ editing matrices and extracts only its cis variants from the PLINK2 files with
 R/            shared R helpers (I/O, cohort, site QC, chunks, INT/PCs, genotypes, statistics)
 scripts/      one command-line script per WDL task (R or bash)
 workflows/    WDL entry points; workflows/tasks/ task definitions
-envs/         Dockerfile + conda environment of ghcr.io/aou-multiomics-analysis/caeditr_edqtl
+envs/         Dockerfile + conda environment of ghcr.io/haimkru/caeditr_implementation
 tests/        R unit tests; fixtures/sim_small = small simulated cohort for CI
 tools/        lint and WDL checks (logging fields, Terra workflow-scope file writes)
 docs/         Terra run guide, data dictionary
@@ -72,8 +72,8 @@ examples/     Terra data-table template (TSV)
 
 `envs/Dockerfile` (micromamba, R 4.5.3, caEditR from GitHub at a pinned
 commit, TCA 1.2.1, htslib, plink2). Published by `.github/workflows/docker-image.yml`
-as `ghcr.io/aou-multiomics-analysis/caeditr_edqtl:sha-<commit>` / `latest`.
-Build locally: `docker buildx build --platform linux/amd64 -f envs/Dockerfile -t caeditr_edqtl:local --load .`
+as `ghcr.io/haimkru/caeditr_implementation:sha-<commit>` / `latest`.
+Build locally: `docker buildx build --platform linux/amd64 -f envs/Dockerfile -t caeditr_implementation:local --load .`
 
 `envs/tensorqtl_cpu/Dockerfile`: CPU tensorQTL 1.0.9 image for local and CI
 runs of the tensorQTL tasks (`tensorqtl_docker_image`); Terra uses the Broad

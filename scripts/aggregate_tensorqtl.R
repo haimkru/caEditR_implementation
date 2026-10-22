@@ -64,7 +64,7 @@ opt <- clean_option_names(parse_args(OptionParser(option_list = option_list)))
 qvalue_lambda <- if (nzchar(opt$qvalue_lambda)) as.numeric(opt$qvalue_lambda) else NULL
 dir.create(opt$output_dir, recursive = TRUE, showWarnings = FALSE)
 out <- function(suffix) file.path(opt$output_dir, paste0(opt$prefix, ".tensorqtl_cis", suffix))
-log_info("aggregate_tensorqtl.R (caEditR_edQTL ", pipeline_version(), ")")
+log_info("aggregate_tensorqtl.R (caEditR_implementation ", pipeline_version(), ")")
 
 read_path_list <- function(path) {
   if (!nzchar(path) || !file.exists(path)) return(character(0))

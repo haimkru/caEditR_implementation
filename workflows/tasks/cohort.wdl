@@ -3,7 +3,7 @@ version 1.0
 # ------------------------------------------------------------------------------
 # workflows/tasks/cohort.wdl
 #
-# Description: input indexing and cohort preparation tasks of caEditR_edQTL.
+# Description: input indexing and cohort preparation tasks of caEditR_implementation.
 # Version:     0.1.0
 # Date:        2026-10-22
 # Author:      Haim Krupkin+Claude
@@ -37,7 +37,7 @@ task IndexBedMatrix {
     output_name='~{output_name}'
     [[ "$output_name" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*\.bed\.gz$ ]] || { echo "Input error: output_name must be a file name ending in .bed.gz" | tee -a "$log"; exit 1; }
     mkdir -p outputs
-    bash /opt/caeditr_edqtl/scripts/index_bed_matrix.sh \
+    bash /opt/caeditr_implementation/scripts/index_bed_matrix.sh \
       --input '~{bed}' \
       --output "outputs/$output_name" \
       --threads ~{cpu} 2>&1 | tee -a "$log"
@@ -92,7 +92,7 @@ task PrepareCohort {
     sample_list_path='~{default="" sample_list}'
     optional_args=()
     if [[ -n "$sample_list_path" ]]; then optional_args+=(--sample-list "$sample_list_path"); fi
-    Rscript /opt/caeditr_edqtl/scripts/prepare_cohort.R \
+    Rscript /opt/caeditr_implementation/scripts/prepare_cohort.R \
       --editing-ratios '~{editing_ratios}' \
       --editing-coverage '~{editing_coverage}' \
       --expression '~{expression}' \

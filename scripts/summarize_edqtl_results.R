@@ -57,7 +57,7 @@ opt <- clean_option_names(parse_args(OptionParser(option_list = option_list)))
 require_options(opt, "celltypes")
 dir.create(opt$output_dir, recursive = TRUE, showWarnings = FALSE)
 out <- function(suffix) file.path(opt$output_dir, paste0(opt$prefix, suffix))
-log_info("summarize_edqtl_results.R (caEditR_edQTL ", pipeline_version(), ")")
+log_info("summarize_edqtl_results.R (caEditR_implementation ", pipeline_version(), ")")
 celltype_table <- fread(opt$celltypes, sep = "\t")
 
 ## ---- 1-2. long table -------------------------------------------------------------------

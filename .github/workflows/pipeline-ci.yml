@@ -55,14 +55,14 @@ jobs:
       - name: Build test images
         run: |
           set -euo pipefail
-          docker build --file envs/Dockerfile --tag caeditr_edqtl:test .
+          docker build --file envs/Dockerfile --tag caeditr_implementation:test .
           docker build --file envs/tensorqtl_cpu/Dockerfile --tag tensorqtl_cpu:test .
 
       - name: R lint and unit tests (inside the image)
         run: |
           set -euo pipefail
-          docker run --rm -v "$PWD:/workspace" -w /workspace caeditr_edqtl:test Rscript tools/lint_r.R
-          docker run --rm -v "$PWD:/workspace" -w /workspace caeditr_edqtl:test Rscript tests/testthat.R
+          docker run --rm -v "$PWD:/workspace" -w /workspace caeditr_implementation:test Rscript tools/lint_r.R
+          docker run --rm -v "$PWD:/workspace" -w /workspace caeditr_implementation:test Rscript tests/testthat.R
 
       - name: Run the end-to-end pipeline on the simulated fixture
         run: |
@@ -91,7 +91,7 @@ jobs:
             tensorqtl_num_threads=2 \
             tensorqtl_memory=4 \
             tensorqtl_disk_space=20 \
-            docker_image=caeditr_edqtl:test \
+            docker_image=caeditr_implementation:test \
             preemptible_attempts=0 \
             max_retries=0 \
             phenotype_memory="4 GB" \

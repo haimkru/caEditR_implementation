@@ -37,7 +37,7 @@ task SummarizeEdqtlResults {
     log="$stage.log"
     printf 'stage=%s start_time=%s\n' "$stage" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" | tee -a "$log"
     trap 'status=$?; printf "stage=%s error_status=%s time=%s\\n" "$stage" "$status" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" | tee -a "$log"; exit "$status"' ERR
-    Rscript /opt/caeditr_edqtl/scripts/summarize_edqtl_results.R \
+    Rscript /opt/caeditr_implementation/scripts/summarize_edqtl_results.R \
       --tensorqtl-results '~{default="" tensorqtl_results}' \
       --canrd-lead '~{default="" canrd_lead_site_celltype}' \
       --celltypes '~{celltypes}' \

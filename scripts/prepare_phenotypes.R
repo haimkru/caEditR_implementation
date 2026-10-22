@@ -76,7 +76,7 @@ require_readable_file(opt$covariates, "covariates")
 label <- if (nzchar(opt$label)) opt$label else sub("\\.bed\\.gz$", "", basename(opt$input_bed))
 dir.create(opt$output_dir, recursive = TRUE, showWarnings = FALSE)
 out <- function(suffix) file.path(opt$output_dir, paste0(label, suffix))
-log_info("prepare_phenotypes.R (caEditR_edQTL ", pipeline_version(), ") ", label)
+log_info("prepare_phenotypes.R (caEditR_implementation ", pipeline_version(), ") ", label)
 
 ## ---- 1. inputs -----------------------------------------------------------------
 covariates_dt <- read_sample_table(opt$covariates, "sample_id")

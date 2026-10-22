@@ -75,7 +75,7 @@ workflow EditingEdqtlPipeline {
     Float canrd_celltype_alpha = 0.05
 
     # ---- runtime ------------------------------------------------------------------
-    String docker_image = "ghcr.io/aou-multiomics-analysis/caeditr_edqtl:latest"
+    String docker_image = "ghcr.io/haimkru/caeditr_implementation:latest"
     Int preemptible_attempts = 2
     Int max_retries = 1
     Int deconvolve_cpu = 1

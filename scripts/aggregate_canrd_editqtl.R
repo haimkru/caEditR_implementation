@@ -68,7 +68,7 @@ require_options(opt, c("site_summary_list", "lead_list", "site_celltype_list"))
 qvalue_lambda <- if (nzchar(opt$qvalue_lambda)) as.numeric(opt$qvalue_lambda) else NULL
 dir.create(opt$output_dir, recursive = TRUE, showWarnings = FALSE)
 out <- function(suffix) file.path(opt$output_dir, paste0(opt$prefix, ".canrd_editqtl", suffix))
-log_info("aggregate_canrd_editqtl.R (caEditR_edQTL ", pipeline_version(), ")")
+log_info("aggregate_canrd_editqtl.R (caEditR_implementation ", pipeline_version(), ")")
 
 read_all <- function(list_file) {
   paths <- readLines(list_file, warn = FALSE)

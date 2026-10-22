@@ -25,7 +25,7 @@ workflow SummarizeEdqtl {
     File? canrd_lead_site_celltype
     File celltypes
     String output_prefix
-    String docker_image = "ghcr.io/aou-multiomics-analysis/caeditr_edqtl:latest"
+    String docker_image = "ghcr.io/haimkru/caeditr_implementation:latest"
     Int preemptible_attempts = 2
     Int max_retries = 1
   }

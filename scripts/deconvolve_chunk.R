@@ -3,7 +3,7 @@
 # scripts/deconvolve_chunk.R
 #
 # Description:
-#   Scatter stage of the caEditR_edQTL pipeline (WDL task DeconvolveChunk).
+#   Scatter stage of the caEditR_implementation pipeline (WDL task DeconvolveChunk).
 #   For one genomic chunk of editing sites:
 #     * per-site coverage QC (same rule in every stage);
 #     * writes the QC-passing BULK ratios (input of the standard edQTL scan);
@@ -91,7 +91,7 @@ report_dir <- file.path(opt$output_dir, "reports")
 dir.create(bed_dir, recursive = TRUE, showWarnings = FALSE)
 dir.create(report_dir, recursive = TRUE, showWarnings = FALSE)
 chunk_id <- opt$chunk_id
-log_info("deconvolve_chunk.R (caEditR_edQTL ", pipeline_version(), ") chunk ", chunk_id)
+log_info("deconvolve_chunk.R (caEditR_implementation ", pipeline_version(), ") chunk ", chunk_id)
 
 ## ---- 1. inputs ------------------------------------------------------------------
 cohort <- load_cohort_tables(opt$samples, opt$proportions)

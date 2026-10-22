@@ -39,7 +39,7 @@ task PreparePhenotypes {
     log="$stage.log"
     printf 'stage=%s start_time=%s label=%s\n' "$stage" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '~{label}' | tee -a "$log"
     trap 'status=$?; printf "stage=%s error_status=%s time=%s\\n" "$stage" "$status" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" | tee -a "$log"; exit "$status"' ERR
-    Rscript /opt/caeditr_edqtl/scripts/prepare_phenotypes.R \
+    Rscript /opt/caeditr_implementation/scripts/prepare_phenotypes.R \
       --input-bed '~{input_bed}' \
       --covariates '~{covariates}' \
       --n-pcs ~{n_pcs} \

@@ -57,7 +57,7 @@ workflow TensorqtlEdqtl {
     Array[String] tensorqtl_zones = ["us-central1-c"]
     String tensorqtl_docker_image = "gcr.io/broad-cga-francois-gtex/tensorqtl:latest"
 
-    String docker_image = "ghcr.io/aou-multiomics-analysis/caeditr_edqtl:latest"
+    String docker_image = "ghcr.io/haimkru/caeditr_implementation:latest"
     Int preemptible_attempts = 2
     Int max_retries = 1
   }

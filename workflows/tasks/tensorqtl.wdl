@@ -14,7 +14,7 @@ version 1.0
 #   (3) a cis_window input for the nominal task (the source task always used
 #   tensorQTL's built-in 1 Mb), so every scan uses the same window.
 #   Keep them in sync with the source repository.
-#   AggregateTensorqtl is new (caEditR_edQTL).
+#   AggregateTensorqtl is new (caEditR_implementation).
 # Version:     0.1.0
 # Date:        2026-10-22
 # Author:      Haim Krupkin+Claude (copied tasks: Francois Aguet)
@@ -51,13 +51,13 @@ task tensorqtl_cis_permutations {
         String? machine_type = "g2-standard-16"
         String gpu_type = "nvidia-l4"
         Array[String] zones = ["us-central1-c"]
-        # added in caEditR_edQTL: image override (same default as the source task)
+        # added in caEditR_implementation: image override (same default as the source task)
         String docker_image = "gcr.io/broad-cga-francois-gtex/tensorqtl:latest"
     }
 
     command <<<
         set -euo pipefail
-        # added in caEditR_edQTL: standard AoU logging fields
+        # added in caEditR_implementation: standard AoU logging fields
         printf 'stage=%s start_time=%s prefix=%s\n' "tensorqtl_cis_permutations" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '~{prefix}' >&2
         log() { echo "[$(date -u +%FT%TZ)] stage=tensorqtl_cis_permutations $*" >&2; }
         log "Validate localized inputs."
@@ -151,18 +151,18 @@ task tensorqtl_cis_nominal {
         Int num_threads
         Int num_gpus = 1
         Int num_preempt
-        # added in caEditR_edQTL: same cis window as the permutation task and caNRD-editQTL
+        # added in caEditR_implementation: same cis window as the permutation task and caNRD-editQTL
         Int cis_window = 1000000
         String? machine_type = "g2-standard-16"
         String gpu_type = "nvidia-l4"
         Array[String] zones = ["us-central1-c"]
-        # added in caEditR_edQTL: image override (same default as the source task)
+        # added in caEditR_implementation: image override (same default as the source task)
         String docker_image = "gcr.io/broad-cga-francois-gtex/tensorqtl:latest"
     }
 
     command <<<
         set -euo pipefail
-        # added in caEditR_edQTL: standard AoU logging fields
+        # added in caEditR_implementation: standard AoU logging fields
         printf 'stage=%s start_time=%s prefix=%s\n' "tensorqtl_cis_nominal" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '~{prefix}' >&2
         log() { echo "[$(date -u +%FT%TZ)] stage=tensorqtl_cis_nominal $*" >&2; }
         log "Validate localized inputs."
@@ -252,7 +252,7 @@ task AggregateTensorqtl {
     trap 'status=$?; printf "stage=%s error_status=%s time=%s\\n" "$stage" "$status" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" | tee -a "$log"; exit "$status"' ERR
     cp '~{write_lines(cis_nominal_parquet)}' cis_nominal_list.txt
     cp '~{write_lines(cis_qtl_results)}' cis_permutation_list.txt
-    Rscript /opt/caeditr_edqtl/scripts/aggregate_tensorqtl.R \
+    Rscript /opt/caeditr_implementation/scripts/aggregate_tensorqtl.R \
       --cis-nominal-list cis_nominal_list.txt \
       --cis-permutation-list cis_permutation_list.txt \
       --fdr ~{fdr} \

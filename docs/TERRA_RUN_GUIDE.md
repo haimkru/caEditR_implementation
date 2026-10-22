@@ -1,4 +1,4 @@
-# Running caEditR_edQTL on All of Us (Terra)
+# Running caEditR_implementation on All of Us (Terra)
 
 First real run: follow [TERRA_PILOT_100_SAMPLES.md](TERRA_PILOT_100_SAMPLES.md)
 (100 AoU samples, step by step). This guide is the full reference.
@@ -10,13 +10,13 @@ project); on Terra only the input paths and the resource settings change.
 
 ## 0. One-time setup
 
-1. **Push this repository** to GitHub as `AoU-Multiomics-Analysis/caEditR_edQTL`.
+1. **Push this repository** to GitHub as `haimkru/caEditR_implementation`.
 2. **Docker image.** The `Docker Image CI` GitHub Action builds `envs/Dockerfile`
-   (linux/amd64) and pushes `ghcr.io/aou-multiomics-analysis/caeditr_edqtl`
+   (linux/amd64) and pushes `ghcr.io/haimkru/caeditr_implementation`
    with tags `sha-<commit>` and `latest`. Make the package public (GitHub ->
-   Packages -> caeditr_edqtl -> settings), like the other AoU-Multiomics images.
+   Packages -> caeditr_implementation -> settings), like the other AoU-Multiomics images.
    Copy the digest printed at the end of the job
-   (`ghcr.io/aou-multiomics-analysis/caeditr_edqtl@sha256:...`) and use it as
+   (`ghcr.io/haimkru/caeditr_implementation@sha256:...`) and use it as
    `docker_image` in every run, so a run is reproducible.
    tensorQTL tasks use the AoU default `gcr.io/broad-cga-francois-gtex/tensorqtl:latest`
    (GPU). `envs/tensorqtl_cpu/Dockerfile` is a CPU twin for local tests and CI
@@ -50,7 +50,7 @@ See `docs/data-dictionary.md` for exact formats.
 
 If the editing data exist as caEditR CSV matrices instead of BEDs, convert
 them first (inside the image):
-`Rscript /opt/caeditr_edqtl/scripts/convert_caeditr_csv_to_bed.R --input-csv ratios.csv --output-bed editing_ratios.bed.gz`.
+`Rscript /opt/caeditr_implementation/scripts/convert_caeditr_csv_to_bed.R --input-csv ratios.csv --output-bed editing_ratios.bed.gz`.
 
 ## 2. Data table
 

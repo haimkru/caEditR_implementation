@@ -56,7 +56,7 @@ task DeconvolveChunk {
     ln -s '~{editing_ratios_index}' localized/editing_ratios.bed.gz.tbi
     ln -s '~{editing_coverage}' localized/editing_coverage.bed.gz
     ln -s '~{editing_coverage_index}' localized/editing_coverage.bed.gz.tbi
-    Rscript /opt/caeditr_edqtl/scripts/deconvolve_chunk.R \
+    Rscript /opt/caeditr_implementation/scripts/deconvolve_chunk.R \
       --chunk-id '~{chunk_id}' \
       --chunks '~{chunks}' \
       --site-chunks '~{site_chunks}' \
@@ -116,7 +116,7 @@ task MergeChunkOutputs {
     # file lists are generated at command time and stay File-typed (Terra path rules)
     cp '~{write_lines(chunk_beds)}' bed_list.txt
     cp '~{write_lines(chunk_reports)}' report_list.txt
-    bash /opt/caeditr_edqtl/scripts/merge_chunk_outputs.sh \
+    bash /opt/caeditr_implementation/scripts/merge_chunk_outputs.sh \
       --bed-list bed_list.txt \
       --report-list report_list.txt \
       --prefix '~{output_prefix}' \

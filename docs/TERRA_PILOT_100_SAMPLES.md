@@ -12,7 +12,7 @@ Follow `TERRA_RUN_GUIDE.md` section 0:
 
 1. Push the repo.
 2. Let `Docker Image CI` build the image. Make the ghcr.io package public and
-   copy the image digest `ghcr.io/aou-multiomics-analysis/caeditr_edqtl@sha256:...`.
+   copy the image digest `ghcr.io/haimkru/caeditr_implementation@sha256:...`.
 3. Register the repo on Dockstore.
 4. Import `editing_edqtl_pipeline` into the AoU workspace.
 
@@ -90,7 +90,7 @@ Inputs. Leave everything not listed at its default.
 | `plink_pgen` / `plink_pvar` / `plink_psam` | `this.plink_pgen` / `this.plink_pvar` / `this.plink_psam` |
 | `sample_list` | `this.sample_list` |
 | `output_prefix` | `this.output_prefix` |
-| `docker_image` | `"ghcr.io/aou-multiomics-analysis/caeditr_edqtl@sha256:<digest>"` |
+| `docker_image` | `"ghcr.io/haimkru/caeditr_implementation@sha256:<digest>"` |
 | `sites_per_chunk` | `5000` (at 100 samples each shard takes seconds; fewer VMs = less start-up cost) |
 | `n_editing_pcs` | `5` (15 is for the full cohort) |
 | `run_tensorqtl` | `true` |

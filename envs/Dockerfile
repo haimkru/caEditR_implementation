@@ -1,10 +1,10 @@
 # ------------------------------------------------------------------------------
 # envs/Dockerfile
 #
-# Description: Docker image used by every caEditR_edQTL WDL task except the
+# Description: Docker image used by every caEditR_implementation WDL task except the
 #   tensorQTL tasks (those use gcr.io/broad-cga-francois-gtex/tensorqtl).
 #   Published by .github/workflows/docker-image.yml as
-#   ghcr.io/aou-multiomics-analysis/caeditr_edqtl:<tag>.
+#   ghcr.io/haimkru/caeditr_implementation:<tag>.
 # Version:     0.1.0
 # Date:        2026-10-22
 # Author:      Haim Krupkin+Claude
@@ -13,11 +13,11 @@
 #   1. micromamba base image; install envs/environment.yml.
 #   2. git clone caEditR at a pinned commit (CAEDITR_COMMIT), check the commit,
 #      R CMD INSTALL it.
-#   3. Copy the pipeline's R/ helpers and scripts/ to /opt/caeditr_edqtl.
+#   3. Copy the pipeline's R/ helpers and scripts/ to /opt/caeditr_implementation.
 #   4. Smoke checks: required R packages load, tools are on PATH.
 #
 # Build locally (Terra machines are linux/amd64):
-#   docker buildx build --platform linux/amd64 -f envs/Dockerfile -t caeditr_edqtl:local --load .
+#   docker buildx build --platform linux/amd64 -f envs/Dockerfile -t caeditr_implementation:local --load .
 # ------------------------------------------------------------------------------
 FROM mambaorg/micromamba:2.9.0-ubuntu22.04
 
@@ -41,13 +41,13 @@ RUN git clone --quiet "$CAEDITR_REPOSITORY" /tmp/caEditR && \
     rm -rf /tmp/caEditR && \
     Rscript -e "stopifnot(as.character(packageVersion('caEditR')) == '$CAEDITR_VERSION')"
 
-COPY --chown=$MAMBA_USER:$MAMBA_USER R /opt/caeditr_edqtl/R
-COPY --chown=$MAMBA_USER:$MAMBA_USER scripts /opt/caeditr_edqtl/scripts
+COPY --chown=$MAMBA_USER:$MAMBA_USER R /opt/caeditr_implementation/R
+COPY --chown=$MAMBA_USER:$MAMBA_USER scripts /opt/caeditr_implementation/scripts
 
 RUN Rscript -e 'for (p in c("caEditR", "TCA", "data.table", "optparse", "nnls", "irlba", "qvalue")) \
       suppressPackageStartupMessages(library(p, character.only = TRUE))' && \
     Rscript -e 'stopifnot(as.character(packageVersion("TCA")) == "1.2.1")' && \
     bgzip --version > /dev/null && tabix --version > /dev/null && plink2 --version && \
-    micromamba env export --name base > /opt/caeditr_edqtl/conda_environment_lock.yml
+    micromamba env export --name base > /opt/caeditr_implementation/conda_environment_lock.yml
 
 WORKDIR /workspace

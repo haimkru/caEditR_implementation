@@ -98,7 +98,7 @@ refine <- if (grepl("^[0-9.eE-]+$", opt$refine)) as.numeric(opt$refine) else opt
 dir.create(opt$output_dir, recursive = TRUE, showWarnings = FALSE)
 chunk_id <- opt$chunk_id
 out <- function(suffix) file.path(opt$output_dir, paste0(chunk_id, ".canrd_editqtl", suffix))
-log_info("canrd_editqtl_chunk.R (caEditR_edQTL ", pipeline_version(), ") chunk ", chunk_id)
+log_info("canrd_editqtl_chunk.R (caEditR_implementation ", pipeline_version(), ") chunk ", chunk_id)
 
 ## ---- 1. editing data and site QC --------------------------------------------------
 cohort <- load_cohort_tables(opt$samples, opt$proportions)

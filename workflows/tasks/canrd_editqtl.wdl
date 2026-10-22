@@ -72,7 +72,7 @@ task CanrdEditqtlChunk {
     editing_pcs_path='~{default="" editing_pcs}'
     optional_args=()
     if [[ -n "$editing_pcs_path" ]]; then optional_args+=(--editing-pcs "$editing_pcs_path"); fi
-    Rscript /opt/caeditr_edqtl/scripts/canrd_editqtl_chunk.R \
+    Rscript /opt/caeditr_implementation/scripts/canrd_editqtl_chunk.R \
       --chunk-id '~{chunk_id}' \
       --chunks '~{chunks}' \
       --site-chunks '~{site_chunks}' \
@@ -152,7 +152,7 @@ task AggregateCanrdEditqtl {
     cp '~{write_lines(site_summaries)}' site_summary_list.txt
     cp '~{write_lines(lead_variants)}' lead_list.txt
     cp '~{write_lines(site_celltype_min_p)}' site_celltype_list.txt
-    Rscript /opt/caeditr_edqtl/scripts/aggregate_canrd_editqtl.R \
+    Rscript /opt/caeditr_implementation/scripts/aggregate_canrd_editqtl.R \
       --site-summary-list site_summary_list.txt \
       --lead-list lead_list.txt \
       --site-celltype-list site_celltype_list.txt \

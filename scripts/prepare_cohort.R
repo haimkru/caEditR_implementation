@@ -3,7 +3,7 @@
 # scripts/prepare_cohort.R
 #
 # Description:
-#   First stage of the caEditR_edQTL pipeline (WDL task PrepareCohort).
+#   First stage of the caEditR_implementation pipeline (WDL task PrepareCohort).
 #   Defines the analysis cohort and every per-site / per-sample input that
 #   later stages share, WITHOUT loading the large editing matrices:
 #     * cohort samples = samples present in all inputs (+ optional list);
@@ -88,7 +88,7 @@ for (name in c("editing_ratios", "editing_coverage", "expression", "gtf", "propo
 }
 dir.create(opt$output_dir, recursive = TRUE, showWarnings = FALSE)
 out <- function(name) file.path(opt$output_dir, name)
-log_info("prepare_cohort.R (caEditR_edQTL ", pipeline_version(), ") starting")
+log_info("prepare_cohort.R (caEditR_implementation ", pipeline_version(), ") starting")
 
 ## ---- 1. sample IDs of every input -------------------------------------------------
 editing_columns <- read_bed_header(opt$editing_ratios)

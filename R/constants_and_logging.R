@@ -23,7 +23,7 @@
 # Outputs: none (functions only)
 ################################################################################
 
-# Version of the caEditR_edQTL pipeline; bump when outputs change.
+# Version of the caEditR_implementation pipeline; bump when outputs change.
 pipeline_version <- function() {
   "0.1.0"
 }

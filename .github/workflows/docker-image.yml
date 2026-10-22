@@ -1,5 +1,5 @@
 # Builds envs/Dockerfile (linux/amd64, as Terra) and pushes it to
-# ghcr.io/<owner>/caeditr_edqtl with a sha-<commit> tag and "latest" on main.
+# ghcr.io/<owner>/caeditr_implementation with a sha-<commit> tag and "latest" on main.
 # Pin Terra runs to the sha tag or the image digest printed in the job log.
 name: Docker Image CI
 
@@ -36,7 +36,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           # image names on ghcr.io must be lower case
-          images: ghcr.io/${{ github.repository_owner }}/caeditr_edqtl
+          images: ghcr.io/${{ github.repository_owner }}/caeditr_implementation
           tags: |
             type=sha,prefix=sha-,format=long
             type=raw,value=latest,enable={{is_default_branch}}
@@ -56,4 +56,4 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Print the immutable image reference for Terra
-        run: echo "ghcr.io/${{ github.repository_owner }}/caeditr_edqtl@${{ steps.build.outputs.digest }}"
+        run: echo "ghcr.io/${{ github.repository_owner }}/caeditr_implementation@${{ steps.build.outputs.digest }}"

@@ -5,7 +5,7 @@ version 1.0
 #
 # Description: from bulk RNA-editing ratios + coverage to tensorQTL-ready
 #   phenotype sets: bulk, caNRD-edit x cell type and TCA x cell type.
-#   Entry point 1 of caEditR_edQTL (Dockstore name prepare_editing_phenotypes).
+#   Entry point 1 of caEditR_implementation (Dockstore name prepare_editing_phenotypes).
 # Version:     0.1.0
 # Date:        2026-10-22
 # Author:      Haim Krupkin+Claude
@@ -49,7 +49,7 @@ workflow PrepareEditingPhenotypes {
     Float max_missing_fraction = 0.5
 
     # ---- runtime ------------------------------------------------------------------
-    String docker_image = "ghcr.io/aou-multiomics-analysis/caeditr_edqtl:latest"
+    String docker_image = "ghcr.io/haimkru/caeditr_implementation:latest"
     Int preemptible_attempts = 2
     Int max_retries = 1
     String index_memory = "16 GB"

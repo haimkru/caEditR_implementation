@@ -56,7 +56,7 @@ workflow CanrdEditqtl {
     Float celltype_alpha = 0.05
     Float? qvalue_lambda
 
-    String docker_image = "ghcr.io/aou-multiomics-analysis/caeditr_edqtl:latest"
+    String docker_image = "ghcr.io/haimkru/caeditr_implementation:latest"
     Int preemptible_attempts = 2
     Int max_retries = 1
     Int chunk_cpu = 4

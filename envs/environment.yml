@@ -1,6 +1,6 @@
 # ------------------------------------------------------------------------------
 # envs/environment.yml
-# Description: conda environment of the caEditR_edQTL Docker image
+# Description: conda environment of the caEditR_implementation Docker image
 #              (R analysis, caEditR build toolchain, bgzip/tabix, plink2).
 # Version:     0.1.0
 # Date:        2026-10-22
