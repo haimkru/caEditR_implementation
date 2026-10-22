@@ -1,5 +1,8 @@
 # Running caEditR_edQTL on All of Us (Terra)
 
+First real run: follow [TERRA_PILOT_100_SAMPLES.md](TERRA_PILOT_100_SAMPLES.md)
+(100 AoU samples, step by step). This guide is the full reference.
+
 Who this is for: whoever runs the pipeline in the AoU Researcher Workbench /
 Terra. The same WDLs and Docker images were run locally on simulated data
 with miniwdl + Docker (`code/pipeline_steps/step1-5` in the development

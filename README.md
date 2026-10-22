@@ -61,7 +61,7 @@ examples/     Terra data-table template (TSV)
 
 ## Running
 
-- Terra: [docs/TERRA_RUN_GUIDE.md](docs/TERRA_RUN_GUIDE.md).
+- Terra, first real run: [docs/TERRA_PILOT_100_SAMPLES.md](docs/TERRA_PILOT_100_SAMPLES.md) (100 samples, step by step); full reference: [docs/TERRA_RUN_GUIDE.md](docs/TERRA_RUN_GUIDE.md).
 - Locally (miniwdl + Docker, same images): `miniwdl run workflows/<wdl> name=value ...`;
   the development project drives this with one script per step.
 - CI (`.github/workflows/pipeline-ci.yml`): miniwdl + womtool checks, R lint and
