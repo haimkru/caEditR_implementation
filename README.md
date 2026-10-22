@@ -1,10 +1,7 @@
 # caEditR_implementation
 
-<!-- workflow-badges:start -->
 [![Docker Image CI](https://github.com/haimkru/caEditR_implementation/actions/workflows/docker-image.yml/badge.svg)](https://github.com/haimkru/caEditR_implementation/actions/workflows/docker-image.yml)
 [![Pipeline CI](https://github.com/haimkru/caEditR_implementation/actions/workflows/pipeline-ci.yml/badge.svg)](https://github.com/haimkru/caEditR_implementation/actions/workflows/pipeline-ci.yml)
-[![Update README workflow badges](https://github.com/haimkru/caEditR_implementation/actions/workflows/update-readme-badges.yml/badge.svg)](https://github.com/haimkru/caEditR_implementation/actions/workflows/update-readme-badges.yml)
-<!-- workflow-badges:end -->
 
 Terra (WDL 1.0) pipelines for **cell-type-specific RNA-editing QTLs (edQTLs)**
 in All of Us whole-blood RNA-seq, built on
