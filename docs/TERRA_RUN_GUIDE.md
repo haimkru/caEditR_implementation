@@ -52,7 +52,7 @@ See `docs/data-dictionary.md` for exact formats.
 | `sample_list` | Optional (e.g. the eQTL sample list) |
 
 If the editing data exist as caEditR CSV matrices instead of BEDs, convert
-them first (inside the image):
+them first, in a terminal of the image (`docker run ghcr.io/haimkru/caeditr_implementation@sha256:...`):
 `Rscript /opt/caeditr_implementation/scripts/convert_caeditr_csv_to_bed.R --input-csv ratios.csv --output-bed editing_ratios.bed.gz`.
 
 ## 2. Data table
@@ -176,10 +176,11 @@ per month. How to keep it low:
 
 ## 6. Figures
 
-In a Terra RStudio / Jupyter (R) session, copy the finalized tables
-(`gsutil cp gs://<bucket>/submissions/.../*.tsv* .`) into
-`results/finalized_tables/<run>/` and run
-`Rscript code/analysis/figures/make_figures.R --run-name <run> --prefix <prefix> --truth-dir ""`
+In a Terra RStudio / Jupyter (R) session, copy the finalized tables into
+`results/finalized_tables/<run>/`, e.g. in R:
+`system("gsutil -u $GOOGLE_PROJECT cp gs://<bucket>/submissions/<...>/*.tsv* results/finalized_tables/<run>/")`,
+then run, in R,
+`system('Rscript code/analysis/figures/make_figures.R --run-name <run> --prefix <prefix> --truth-dir ""')`
 (fig1 = edSite counts; figures 2-4 need simulation truth). Needs `ggplot2`,
 `svglite`, `data.table`, `optparse`.
 

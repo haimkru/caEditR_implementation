@@ -17,9 +17,18 @@ Follow `TERRA_RUN_GUIDE.md` section 0:
 4. Import `editing_edqtl_pipeline` into the AoU workspace.
 
 Strongly recommended: first run the same workflow on the small simulated
-fixture (`tests/fixtures/sim_small`, copied to the bucket). It takes minutes
-and costs cents. Use the fixture row of `examples/terra_data_table.tsv` and
-the settings in `TERRA_RUN_GUIDE.md` section 4b.
+fixture. It takes minutes and costs cents. Copy the fixture to the bucket in R:
+
+```r
+bucket <- Sys.getenv("WORKSPACE_BUCKET")
+system("git clone https://github.com/haimkru/caEditR_implementation.git")
+system(paste0("gsutil -m cp caEditR_implementation/tests/fixtures/sim_small/* ", bucket, "/caeditr_test/"))
+```
+
+Then use the `sim_small_fixture` row of `examples/terra_data_table.tsv` (with
+`gs://YOUR_BUCKET/caeditr_edqtl_test/` replaced by your
+`$WORKSPACE_BUCKET/caeditr_test/`) and the fixture settings in
+`TERRA_RUN_GUIDE.md` section 4b.
 
 ## 1. Inputs in the workspace bucket
 
@@ -37,16 +46,23 @@ picks the 100.
 | `covariates` | `sample_id` + genotype PCs + sex + age |
 | `plink_pgen/pvar/psam` | prepare_QTL PLINK2 genotypes |
 
-## 2. Make the 100-sample list (Terra Jupyter / RStudio, R)
+## 2. Make the 100-sample list (all in R: Terra RStudio or a Jupyter R notebook)
 
-First find the real paths of your files (in a notebook terminal):
+Everything in this step is R; paste it into the R console or an R notebook
+cell (not a terminal).
 
-```bash
-gsutil -u "$GOOGLE_PROJECT" ls -r "$WORKSPACE_BUCKET" | grep -E "bed.gz|tsv|psam|gtf"
+**2a. Find the real paths of your files:**
+
+```r
+project <- Sys.getenv("GOOGLE_PROJECT")    # billing project (needed for requester-pays buckets)
+bucket  <- Sys.getenv("WORKSPACE_BUCKET")  # or another gs:// bucket that holds the inputs
+files <- system(paste("gsutil -u", project, "ls -r", bucket), intern = TRUE)
+files <- files[grepl("bed\\.gz$|\\.tsv$|\\.psam$|\\.gtf", files) & !grepl("/submissions/", files)]
+print(files)
 ```
 
-Put those paths in `paths` below. The code checks every file, then picks 100
-samples present in **every** input, so none are dropped:
+**2b. Check the files and pick the 100 samples.** Put the paths printed above into `paths`. The code checks every file, then
+picks 100 samples present in **every** input, so none are dropped:
 
 ```r
 project <- Sys.getenv("GOOGLE_PROJECT")    # billing project (needed for requester-pays buckets)
