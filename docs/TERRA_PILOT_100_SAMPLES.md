@@ -39,31 +39,65 @@ picks the 100.
 
 ## 2. Make the 100-sample list (Terra Jupyter / RStudio, R)
 
-Pick 100 samples that are present in **every** input, so none are dropped:
+First find the real paths of your files (in a notebook terminal):
 
-```r
-bucket <- Sys.getenv("WORKSPACE_BUCKET")
-header <- function(path) strsplit(system(paste("gsutil cat", path, "| gzip -dcf | head -n 1"),
-                                         intern = TRUE), "\t")[[1]]
-editing <- header(paste0(bucket, "/editing/editing_ratios.bed.gz"))[-(1:4)]
-coverage <- header(paste0(bucket, "/editing/editing_coverage.bed.gz"))[-(1:4)]
-expr <- header(paste0(bucket, "/expression/expression.cpm.bed.gz"))[-(1:4)]
-props <- read.delim(pipe(paste("gsutil cat", paste0(bucket, "/deconvolution/proportions_tca_weights.tsv"))),
-                    colClasses = "character")$sample_id
-covs <- read.delim(pipe(paste("gsutil cat", paste0(bucket, "/covariates/additional_covariates.tsv"))),
-                   colClasses = "character")
-covs <- covs$sample_id[stats::complete.cases(covs)]
-psam <- read.delim(pipe(paste("gsutil cat", paste0(bucket, "/genotypes/aou.psam"))),
-                   colClasses = "character", check.names = FALSE)[[1]]
-shared <- Reduce(intersect, list(editing, coverage, expr, props, covs, psam))
-cat(length(shared), "samples are in every input\n")
-set.seed(1)
-writeLines(sample(shared, 100), "sample_list_pilot100.txt")
-system(paste("gsutil cp sample_list_pilot100.txt", paste0(bucket, "/sample_lists/")))
+```bash
+gsutil -u "$GOOGLE_PROJECT" ls -r "$WORKSPACE_BUCKET" | grep -E "bed.gz|tsv|psam|gtf"
 ```
 
-Adjust the paths to your files. If `length(shared)` is far below the size you
-expect, the sample IDs do not match between inputs; fix that before going on.
+Put those paths in `paths` below. The code checks every file, then picks 100
+samples present in **every** input, so none are dropped:
+
+```r
+project <- Sys.getenv("GOOGLE_PROJECT")    # billing project (needed for requester-pays buckets)
+bucket  <- Sys.getenv("WORKSPACE_BUCKET")
+paths <- c(                                 # <- edit to your files
+  editing_ratios   = paste0(bucket, "/editing/editing_ratios.bed.gz"),
+  editing_coverage = paste0(bucket, "/editing/editing_coverage.bed.gz"),
+  expression       = paste0(bucket, "/expression/expression.cpm.bed.gz"),
+  proportions      = paste0(bucket, "/deconvolution/proportions_tca_weights.tsv"),
+  covariates       = paste0(bucket, "/covariates/additional_covariates.tsv"),
+  psam             = paste0(bucket, "/genotypes/aou.psam")
+)
+
+# stop with a clear message if a file is missing or unreadable
+gs_check <- function(path) {
+  status <- system(paste("gsutil -u", project, "-q stat", shQuote(path)))
+  if (status != 0) stop("Not found / not readable: ", path,
+                        "\n  list the folder with: gsutil -u ", project, " ls ", dirname(path))
+}
+for (path in paths) gs_check(path)
+
+gs_stream <- function(path) paste("gsutil -u", project, "cat", shQuote(path), "| gzip -dcf")
+header <- function(path) {
+  line <- system(paste(gs_stream(path), "| head -n 1"), intern = TRUE)
+  if (length(line) == 0) stop("Empty file: ", path)
+  strsplit(line, "\t")[[1]]
+}
+read_tsv_gs <- function(path) read.delim(pipe(gs_stream(path)), colClasses = "character", check.names = FALSE)
+
+editing  <- header(paths[["editing_ratios"]])[-(1:4)]
+coverage <- header(paths[["editing_coverage"]])[-(1:4)]
+expr     <- header(paths[["expression"]])[-(1:4)]
+props    <- read_tsv_gs(paths[["proportions"]])$sample_id
+covs     <- read_tsv_gs(paths[["covariates"]])
+covs     <- covs$sample_id[stats::complete.cases(covs)]
+psam     <- read_tsv_gs(paths[["psam"]])[[1]]          # first column = IID
+
+counts <- c(editing = length(editing), coverage = length(coverage), expression = length(expr),
+            proportions = length(props), covariates = length(covs), genotypes = length(psam))
+print(counts)
+shared <- Reduce(intersect, list(editing, coverage, expr, props, covs, psam))
+cat(length(shared), "samples are in every input\n")
+
+set.seed(1)
+writeLines(sample(shared, 100), "sample_list_pilot100.txt")
+system(paste("gsutil -u", project, "cp sample_list_pilot100.txt", paste0(bucket, "/sample_lists/")))
+```
+
+If `length(shared)` is far below the counts printed above, the sample IDs do
+not match between inputs (e.g. one file uses `research_id`, another a
+different ID); fix that before going on.
 
 ## 3. Data table (TSV upload)
 
