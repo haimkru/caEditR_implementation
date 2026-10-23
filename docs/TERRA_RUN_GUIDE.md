@@ -21,7 +21,10 @@ project); on Terra only the input paths and the resource settings change.
    tensorQTL tasks use the AoU default `gcr.io/broad-cga-francois-gtex/tensorqtl:latest`
    (GPU). `envs/tensorqtl_cpu/Dockerfile` is a CPU twin for local tests and CI
    (`tensorqtl_docker_image` input); it is not needed on Terra.
-3. **Dockstore.** Register the GitHub repo on Dockstore. `.dockstore.yml` defines:
+3. **Dockstore.** Log in to dockstore.org with GitHub, install the Dockstore
+   GitHub App on the repo (https://github.com/apps/dockstore), then push any
+   commit: Dockstore registers the workflows from `.dockstore.yml` on push.
+   Publish them under My Workflows. `.dockstore.yml` defines:
 
    | Dockstore name | WDL | What it does |
    | --- | --- | --- |
