@@ -25,6 +25,9 @@ in All of Us whole-blood RNA-seq, built on
 | `canrd_editqtl` | [workflows/canrd_editqtl.wdl](workflows/canrd_editqtl.wdl) | caNRD-editQTL cis scan per chunk + aggregation |
 | `summarize_edqtl` | [workflows/summarize_edqtl.wdl](workflows/summarize_edqtl.wdl) | Side-by-side comparison of the three approaches |
 
+Dockstore: [editing_edqtl_pipeline](https://dockstore.org/workflows/github.com/haimkru/caEditR_implementation/editing_edqtl_pipeline)
+(the other entries are under the same repository path).
+
 Tasks are in `workflows/tasks/`. The tensorQTL tasks are copies of
 [AoU-Multiomics-Analysis/tensorQTL](https://github.com/AoU-Multiomics-Analysis/tensorQTL)
 (see the header of `workflows/tasks/tensorqtl.wdl`).
