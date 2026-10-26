@@ -30,21 +30,47 @@ Then use the `sim_small_fixture` row of `examples/terra_data_table.tsv` (with
 `$WORKSPACE_BUCKET/caeditr_test/`) and the fixture settings in
 `TERRA_RUN_GUIDE.md` section 4b.
 
-## 1. Inputs in the workspace bucket
+## 1. The 7 inputs and where they come from on AoU
 
-You need these files in `gs://<WORKSPACE_BUCKET>/...`. Formats are in
-`data-dictionary.md`. All of them can contain every sample; the sample list
-picks the 100.
+| # | Input (WDL name) | Where it comes from on AoU | Typical file |
+| --- | --- | --- | --- |
+| 1 | genotypes (`plink_pgen`, `plink_pvar`, `plink_psam`) | prepare_QTL `prepare_VCF` (the genotypes of the 9k eQTL tensorQTL runs) | `<prefix>.pgen/.pvar/.psam` under `submissions/.../call-plink2/` |
+| 2 | RNA editing ratio per site (`editing_ratios`) | your editing quantification (not produced by any AoU-Multiomics repo) | BED matrix, see `data-dictionary.md` |
+| 3 | coverage per site (`editing_coverage`) | same quantification as #2 | BED matrix, same sites and samples |
+| 4 | expression (`expression`) | the linear-CPM BED given to the cell-type deconvolution (its `expression` input, or its `filtered_expression` output); prepare_eQTL `.expression.raw.bed.gz` from a count GCT is TMM CPM too | `*.bed.gz` |
+| 5 | GENCODE annotation (`gtf`) | the notebook disk: `/home/jupyter/multiomics_qtls/edit/gencode.v48.annotation.gtf.gz`. Copy it to the bucket, because workflows only read `gs://` files | `gencode.v48.annotation.gtf.gz` |
+| 6 | covariates (`covariates`): genotype PCs, sex, age | genotype PCs: `prepare_VCF` / `calculateGenotypePCs` (= the eQTL `AdditionalCovariates`); add sex and age from the AoU demographics | `<prefix>_genetic_PCs.tsv` (+ sex, age columns) |
+| 7 | cell-type proportions (`proportions`) | the `tca_weights` output of the deconvolution / prepare_cell_type_eQTL run | `tca_weights.tsv` or `proportions_tca_weights.tsv` |
 
-| Input | File |
-| --- | --- |
-| `editing_ratios` | editing ratio BED matrix (`#chr start end site_id <research_ids>`) |
-| `editing_coverage` | matching read-depth BED matrix |
-| `expression` | linear-CPM gene BED |
-| `gtf` | the GTF used for expression |
-| `proportions` | CellTypeDeconvolution `proportions_tca_weights.tsv` |
-| `covariates` | `sample_id` + genotype PCs + sex + age |
-| `plink_pgen/pvar/psam` | prepare_QTL PLINK2 genotypes |
+The **sample list** of the AoU eQTL cohort is
+`gs://fc-secure-b8771cfd-5455-4292-a720-8533eb501a93/eQTL_9k_set/sample_lists/COMB_eQTL_9k_sample_list.tsv`
+(a `research_id` column). The ID column may be called `research_id` or
+`sample_id`; the pipeline accepts both.
+
+Tip: the exact genotype and covariate files of the 9k eQTL runs are listed
+in Terra **Job History -> that tensorQTL submission -> Inputs**
+(`plink_pgen`, `covariates`, ...).
+
+Find candidates for each input in your bucket (R; this includes workflow outputs under `submissions/`):
+
+```r
+project <- Sys.getenv("GOOGLE_PROJECT")
+bucket  <- Sys.getenv("WORKSPACE_BUCKET")
+all_files <- system(paste("gsutil -u", project, "ls -r", bucket), intern = TRUE)
+find <- function(pattern) all_files[grepl(pattern, all_files, ignore.case = TRUE)]
+cat("\n== 1 genotypes ==\n");     print(find("\\.(pgen|pvar|psam)$"))
+cat("\n== 2-3 editing ==\n");     print(find("edit|redi|coverage|a2g|a_to_g"))
+cat("\n== 4 expression ==\n");    print(find("expression.*bed\\.gz$|cpm.*bed\\.gz$|gene_reads\\.gct"))
+cat("\n== 5 gtf ==\n");           print(find("\\.gtf"))
+cat("\n== 6 covariates ==\n");    print(find("genetic_PCs|covariate"))
+cat("\n== 7 proportions ==\n");   print(find("tca_weights"))
+cat("\n== sample lists ==\n");    print(find("sample_list"))
+# copy the GENCODE GTF from the notebook disk to the bucket (workflows need gs:// files)
+system(paste0("gsutil -u ", project, " cp /home/jupyter/multiomics_qtls/edit/gencode.v48.annotation.gtf.gz ",
+              bucket, "/reference/"))
+```
+
+Use the paths it prints in step 2 below and in the data table (step 3).
 
 ## 2. Make the 100-sample list (all in R: Terra RStudio or a Jupyter R notebook)
 

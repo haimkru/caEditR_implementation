@@ -21,6 +21,7 @@
 #                             and optionally only selected sample columns
 #   write_bed_matrix()     -> sorted BED, bgzip, tabix index
 #   read_sample_table()    -> data.table with sample_id first, as character
+#                             (accepts sample_id / research_id / IID / ID anywhere)
 #   write_tensorqtl_covariates() -> transposed covariates (ID + samples)
 #
 # Inputs:  file paths given by the calling script
@@ -147,11 +148,17 @@ write_bed_matrix <- function(meta, values, path, digits = 6, index = TRUE) {
 # Read a TSV whose first column is a sample identifier; IDs stay character.
 #   id_column: expected name of the first column (e.g. "sample_id")
 read_sample_table <- function(path, id_column = "sample_id") {
+  # the ID column may be called sample_id, research_id, IID or ID (AoU files use
+  # research_id; prepare_QTL genetic-PC files use sample_id) and need not be first
   columns <- read_bed_header(path)
-  if (columns[1] != id_column) {
-    stop_input(path, " must have '", id_column, "' as its first column; found '", columns[1], "'")
+  id_candidates <- c(id_column, "sample_id", "research_id", "#IID", "IID", "ID")
+  found <- columns[tolower(columns) %in% tolower(id_candidates)]
+  if (length(found) == 0) {
+    stop_input(path, " needs a sample ID column (", paste(unique(id_candidates), collapse = ", "),
+               "); found columns: ", paste(utils::head(columns, 6), collapse = ", "))
   }
-  col_classes <- list(character = id_column)
+  file_id_column <- found[1]
+  col_classes <- list(character = file_id_column)
   dt <- data.table::fread(
     cmd = stream_command(path),
     sep = "\t",
@@ -160,6 +167,9 @@ read_sample_table <- function(path, id_column = "sample_id") {
     check.names = FALSE,
     showProgress = FALSE
   )
+  # standardize: ID column named id_column and placed first
+  data.table::setnames(dt, file_id_column, id_column)
+  data.table::setcolorder(dt, id_column)
   if (anyDuplicated(dt[[id_column]]) > 0) {
     stop_input(path, " has duplicated ", id_column, " values, e.g. ",
                dt[[id_column]][duplicated(dt[[id_column]])][1])

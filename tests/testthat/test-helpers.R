@@ -88,3 +88,17 @@ test_that("pcs_from_gram reproduces compute_phenotype_pcs on block-accumulated d
   expect_equal(abs(unname(from_gram$scores)), abs(unname(direct$scores)), tolerance = 1e-8)
   expect_equal(from_gram$variance_explained, direct$variance_explained, tolerance = 1e-8)
 })
+
+test_that("sample tables accept research_id anywhere and sample lists can be tables", {
+  table_file <- tempfile(fileext = ".tsv")
+  writeLines(c("PC1\tresearch_id\tPC2", "0.1\t0001\t0.2", "0.3\t0002\t0.4"), table_file)
+  dt <- read_sample_table(table_file, "sample_id")
+  expect_equal(names(dt)[1], "sample_id")
+  expect_equal(dt$sample_id, c("0001", "0002"))
+  list_file <- tempfile(fileext = ".tsv")
+  writeLines(c("research_id\tancestry", "1000001\tEUR", "1000002\tAFR"), list_file)
+  expect_equal(read_sample_list(list_file), c("1000001", "1000002"))
+  plain_file <- tempfile(fileext = ".txt")
+  writeLines(c("research_id", "1000001", "1000002"), plain_file)
+  expect_equal(read_sample_list(plain_file), c("1000001", "1000002"))
+})

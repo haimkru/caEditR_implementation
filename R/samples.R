@@ -12,7 +12,9 @@
 #
 # Pseudo code:
 #   read_sample_list(): one ID per line; optional header research_id /
-#     sample_id / ID (any case) is dropped; blanks and duplicates fail.
+#     sample_id / ID (any case) is dropped; a tab-separated table (e.g. the
+#     AoU eQTL sample lists) uses its research_id / sample_id column; blanks
+#     and duplicates fail.
 #   read_psam_sample_ids(): IID column of a PLINK2 .psam (#IID or #FID IID).
 #   align_cohort_samples(): for each editing sample, record which inputs
 #     contain it; keep samples present everywhere (and in the sample list).
@@ -23,15 +25,32 @@
 ################################################################################
 
 read_sample_list <- function(path) {
-  ids <- trimws(readLines(path, warn = FALSE))
-  ids <- ids[nzchar(ids)]
-  if (length(ids) == 0) {
+  lines <- trimws(readLines(path, warn = FALSE))
+  lines <- lines[nzchar(lines)]
+  if (length(lines) == 0) {
     stop_input("sample list is empty: ", path)
   }
-  # drop an optional header line
-  if (tolower(ids[1]) %in% c("research_id", "sample_id", "id", "iid", "#iid")) {
-    ids <- ids[-1]
+  id_headers <- c("research_id", "sample_id", "id", "iid", "#iid")
+  if (any(grepl("\t", lines))) {
+    # a table (e.g. research_id + ancestry): use the ID column, else the first column
+    fields <- strsplit(lines, "\t", fixed = TRUE)
+    header <- tolower(fields[[1]])
+    column <- match(id_headers, header)
+    column <- column[!is.na(column)]
+    if (length(column) > 0) {
+      ids <- vapply(fields[-1], `[`, character(1), column[1])
+    } else {
+      ids <- vapply(fields, `[`, character(1), 1)
+    }
+  } else {
+    ids <- lines
+    # drop an optional header line
+    if (tolower(ids[1]) %in% id_headers) {
+      ids <- ids[-1]
+    }
   }
+  ids <- trimws(ids)
+  ids <- ids[!is.na(ids) & nzchar(ids)]
   if (length(ids) == 0) {
     stop_input("sample list has a header but no sample IDs: ", path)
   }
